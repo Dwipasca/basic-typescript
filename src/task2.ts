@@ -1,5 +1,9 @@
-function createOccurenceMap(str) {
-  const charMap = str
+interface CharMap {
+  [key: string]: number;
+}
+
+function createOccurenceMap(str: string): CharMap {
+  const charMap: CharMap = str
     .split("")
     .reduce((acc, char) => Object.assign(acc, { [char]: 0 }), {});
 
@@ -11,7 +15,7 @@ function createOccurenceMap(str) {
   return charMap;
 }
 
-function getOccurence(str) {
+function getOccurence(str: string): string {
   const map = createOccurenceMap(str);
 
   let newStr = "";
