@@ -1,41 +1,67 @@
-// https://pokeapi.co/
+const baseUrl: string = "https://pokeapi.co/api/v2";
 
-const baseUrl = "https://pokeapi.co/api/v2";
+interface Pokemon {
+  name: string;
+  url: string;
+}
 
-/**
- * @param {number} offset
- * @param {number} limit
- * @return {Promise<{ count: number, next: string, results: Array<{ name: string, url: string }> }>}
- */
-function getPokemonList(offset = 0, limit = 10) {
+interface PokemonDetailResponse {
+  id: number;
+  height: number;
+  name: string;
+}
+
+interface PokemontListResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Array<Pokemon>;
+}
+
+function getPokemonList(offset = 0, limit = 10): Promise<PokemontListResponse> {
   return fetch(`${baseUrl}/pokemon?offset=${offset}&limit=${limit}`).then(
     (res) => res.json()
   );
 }
 
-/**
- * @param {string} id
- */
-function getPokemonById(id) {
+function getPokemonById(id: string): Promise<PokemonDetailResponse> {
   return fetch(`${baseUrl}/pokemon/${id}`).then((res) => res.json());
 }
 
-async function renderPokemonList() {
-  const listEl = document.querySelector(".list-container");
-  const response = await getPokemonList();
+async function renderPokemonList(): Promise<number> {
+  // assert itu ketika kalian yakin suatu function yg memiliki
+  // lebih dari satu return type, bakal ngereturn salah satu type
+  // const listEl: Element | null = document.querySelector(".list-container");
 
-  response.results.forEach((pokemon) => {
-    const itemEl = createPokemonItem(pokemon);
-    listEl.appendChild(itemEl);
-  });
+  // if (listEl === null) return 0;
+
+  const listEl: Element | null = document.querySelector(
+    ".list-container"
+  ) as Element;
+
+  let response: PokemontListResponse;
+  try {
+    response = await getPokemonList();
+
+    response.results.forEach((pokemon: Pokemon) => {
+      const itemEl = createPokemonItem(pokemon);
+      listEl.appendChild(itemEl);
+    });
+  } catch (err) {
+    return 0;
+  }
+
+  return 1;
 }
 
-function createPokemonItem({ name, url }) {
+function createPokemonItem(pokemon: Pokemon): HTMLDivElement {
   const el = document.createElement("div");
-  el.innerText = name;
+  el.innerText = pokemon.name;
   el.setAttribute("class", "pokemon-item");
 
   return el;
 }
 
-renderPokemonList();
+renderPokemonList().then((ret: number) => {
+  console.log(ret);
+});
